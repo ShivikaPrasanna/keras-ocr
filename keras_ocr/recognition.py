@@ -50,13 +50,13 @@ PRETRAINED_WEIGHTS = {
         'weights': {
             'notop': {
                 'url':
-                'https://drive.google.com/file/d/1x7HZ8VVe9m0CEz6PC0D_auA77hNWUm7_/view?usp=sharing',
+                'https://drive.google.com/uc?export=downloads&id=1x7HZ8VVe9m0CEz6PC0D_auA77hNWUm7_',
                 'filename': 'withctc.h5',
                 'sha256': '17691a8e80fa1db305afea32081715f1f5dd12eb307857c9e3adebb869b4f307'
             },
             'top': {
 		'url':
-                'https://drive.google.com/file/d/1x7HZ8VVe9m0CEz6PC0D_auA77hNWUm7_/view?usp=sharing',
+                'https://drive.google.com/uc?export=downloads&id=1x7HZ8VVe9m0CEz6PC0D_auA77hNWUm7',
                 'filename': 'withctc.h5',
                 'sha256': '17691a8e80fa1db305afea32081715f1f5dd12eb307857c9e3adebb869b4f307'
             }
