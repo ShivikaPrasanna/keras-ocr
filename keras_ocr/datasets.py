@@ -404,44 +404,63 @@ def get_recognizer_image_generator(labels, height, width, alphabet, augmenter=No
         yield (image, text)
 
 def get_my_own_data(split='train', cache_dir=None, path='./'):
-    data = []
+"""Get the ICDAR 2013 text segmentation dataset for detector
+    training. Only the training set has the necessary annotations.
+    For the test set, only segmentation maps are provided, which
+    do not provide the necessary information for affinity scores.
+    Args:
+        cache_dir: The directory in which to store the data.
+        skip_illegible: Whether to skip illegible characters.
+    Returns:
+        Lists of (image_path, lines, confidence) tuples. Confidence
+        is always 1 for this dataset. We record confidence to allow
+        for future support for weakly supervised cases.
+    """
     if cache_dir is None:
         cache_dir = tools.get_default_cache_dir()
-    main_dir = os.path.join(cache_dir, 'MyData')
-    assert split in ['train', 'traintest', 'test'], f'Unsupported split: {split}'
-    if split in ['train', 'traintest']:
-        train_dir = os.path.join(main_dir, 'train')
-        training_zip_path = tools.download_and_verify(
-            url=
-            'https://github.com/faustomorales/keras-ocr/releases/download/v0.8.4/Challenge1_Training_Task3_Images_GT.zip',  # pylint: disable=line-too-long
-            filename='Challenge1_Training_Task3_Images_GT.zip',
-            cache_dir=main_dir,
-            sha256='8ede0639f5a8031d584afd98cee893d1c5275d7f17863afc2cba24b13c932b07')
-        if len(
-                glob.glob(os.path.join(train_dir, '*.png')) +
-                glob.glob(os.path.join(train_dir, '*.txt'))) != 3568:
-            with zipfile.ZipFile(training_zip_path) as zfile:
-                zfile.extractall(train_dir)
-        data.extend(
-            _read_born_digital_labels_file(labels_filepath=os.path.join(train_dir, 'gt.txt'),
-                                           image_folder=train_dir))
-    if split in ['test', 'traintest']:
-        test_dir = os.path.join(main_dir, 'test')
-        test_zip_path = tools.download_and_verify(
-            url=
-            'https://github.com/faustomorales/keras-ocr/releases/download/v0.8.4/Challenge1_Test_Task3_Images.zip',
-            filename='Challenge1_Test_Task3_Images.zip',
-            cache_dir=main_dir,
-            sha256='8f781b0140fd0bac3750530f0924bce5db3341fd314a2fcbe9e0b6ca409a77f0')
-        if len(glob.glob(os.path.join(test_dir, '*.png'))) != 1439:
-            with zipfile.ZipFile(test_zip_path) as zfile:
-                zfile.extractall(test_dir)
-        test_gt_path = tools.download_and_verify(
-            url=
-            'https://github.com/faustomorales/keras-ocr/releases/download/v0.8.4/Challenge1_Test_Task3_GT.txt',
-            cache_dir=test_dir,
-            filename='Challenge1_Test_Task3_GT.txt',
-            sha256='fce7f1228b7c4c26a59f13f562085148acf063d6690ce51afc395e0a1aabf8be')
-        data.extend(
-            _read_born_digital_labels_file(labels_filepath=test_gt_path, image_folder=test_dir))
-    return data
+    main_dir = os.path.join(cache_dir, 'icdar2013')
+    training_images_dir = os.path.join(main_dir, 'Challenge2_Training_Task12_Images')
+    training_zip_images_path = tools.download_and_verify(
+        url=
+        'https://github.com/faustomorales/keras-ocr/releases/download/v0.8.4/Challenge2_Training_Task12_Images.zip',  # pylint: disable=line-too-long
+        cache_dir=main_dir,
+        filename='Challenge2_Training_Task12_Images.zip',
+        sha256='7a57d1699fbb92db3ad82c930202938562edaf72e1c422ddd923860d8ace8ded')
+    if len(glob.glob(os.path.join(training_images_dir, '*.jpg'))) != 229:
+        with zipfile.ZipFile(training_zip_images_path) as zfile:
+            zfile.extractall(training_images_dir)
+    training_gt_dir = os.path.join(main_dir, 'Challenge2_Training_Task2_GT')
+    training_zip_gt_path = tools.download_and_verify(
+        url=
+        'https://github.com/faustomorales/keras-ocr/releases/download/v0.8.4/Challenge2_Training_Task2_GT.zip',  # pylint: disable=line-too-long
+        cache_dir=main_dir,
+        filename='Challenge2_Training_Task2_GT.zip',
+        sha256='4cedd5b1e33dc4354058f5967221ac85dbdf91a99b30f3ab1ecdf42786a9d027')
+    if len(glob.glob(os.path.join(training_gt_dir, '*.txt'))) != 229:
+        with zipfile.ZipFile(training_zip_gt_path) as zfile:
+            zfile.extractall(training_gt_dir)
+
+    dataset = []
+    for gt_filepath in glob.glob(os.path.join(training_gt_dir, '*.txt')):
+        image_id = os.path.split(gt_filepath)[1].split('_')[0]
+        image_path = os.path.join(training_images_dir, image_id + '.jpg')
+        lines = []
+        with open(gt_filepath, 'r') as f:
+            current_line = []
+            for row in f.read().split('\n'):
+                if row == '':
+                    lines.append(current_line)
+                    current_line = []
+                else:
+                    row = row.split(' ')[5:]
+                    character = row[-1][1:-1]
+                    if character == '' and skip_illegible:
+                        continue
+                    x1, y1, x2, y2 = map(int, row[:4])
+                    current_line.append((np.array([[x1, y1], [x2, y1], [x2, y2], [x1,
+                                                                                  y2]]), character))
+        # Some lines only have illegible characters and if skip_illegible is True,
+        # then these lines will be blank.
+        lines = [line for line in lines if line]
+        dataset.append((image_path, lines, 1))
+    return dataset
