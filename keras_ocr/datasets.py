@@ -404,7 +404,7 @@ def get_recognizer_image_generator(labels, height, width, alphabet, augmenter=No
         yield (image, text)
 
 def get_my_own_data(split='train', cache_dir=None, path='./'):
-"""Get the ICDAR 2013 text segmentation dataset for detector
+    """Get the ICDAR 2013 text segmentation dataset for detector
     training. Only the training set has the necessary annotations.
     For the test set, only segmentation maps are provided, which
     do not provide the necessary information for affinity scores.
