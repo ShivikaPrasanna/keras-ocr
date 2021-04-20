@@ -44,21 +44,21 @@ PRETRAINED_WEIGHTS = {
         }
     },
 
-    'withctc': {
+    'custom': {
 	'alphabet': DEFAULT_ALPHABET,
         'build_params': DEFAULT_BUILD_PARAMS,
         'weights': {
             'notop': {
                 'url':
-                'https://drive.google.com/uc?export=downloads&id=1WlBNl4og1SCy_SLjfSIQRhPgmN_2jXjq',
-                'filename': 'withctc.h5',
-                'sha256': '83aac86dd7568e548c5bcce957d17cc802935745389fa810b459f88538671fcf'
+                'https://drive.google.com/uc?export=downloads&id=1mROwvKEdj2Nl-2lcvV7q_ZLTjajF-z4w',
+                'filename': 'recognizer_custom.h5',
+                'sha256': 'b485bf6f8fdb5928d1168583e8fbf40943fdd5c3e0265487d1dd67d13e7dabe8'
             },
             'top': {
 		'url':
-                'https://drive.google.com/uc?export=downloads&id=1WlBNl4og1SCy_SLjfSIQRhPgmN_2jXjq',
-                'filename': 'withctc.h5',
-                'sha256': '83aac86dd7568e548c5bcce957d17cc802935745389fa810b459f88538671fcf'
+                'https://drive.google.com/uc?export=downloads&id=1mROwvKEdj2Nl-2lcvV7q_ZLTjajF-z4w',
+                'filename': 'recognizer_custom.h5',
+                'sha256': 'b485bf6f8fdb5928d1168583e8fbf40943fdd5c3e0265487d1dd67d13e7dabe8'
             }
         }
     }
